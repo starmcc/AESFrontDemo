@@ -1,46 +1,50 @@
-# 前端库
+# 前端js对称加解密库
 
-前端库crypto-js
+> 前端库crypto-js
 
 ```
 https://github.com/brix/crypto-js
 ```
 
-#  前端js对称加解密
+## Demo
 
-> 前端使用cryptojs加密库
-> 由于之前对加密算法不是很了解，并且项目内的Key并非直接使用，所以在处理KEY的问题上花费了较多的时间。 
+### 获取真正的密钥
 
-## SHA1PRNG
+> SHA1PRNG
 
-> java里可以是经过这个算法处理过的，在前端处理过程中，我们要把原始秘钥经过两次sha1加密，最后取其字符串前32位。 
-
-## 加密
+在前端加解密处理过程中，我们要把原始秘钥经过两次`sha1`加密，最后取其字符串前`32`位。 
 
 ```javascript
-    function encrypt(data,key) {
-      var realKey = getKey(key);
-      var encrypt = CryptoJS.AES.encrypt(data, CryptoJS.enc.Hex.parse(realKey), {
-        mode: CryptoJS.mode.ECB,
-        padding: CryptoJS.pad.Pkcs7
-      });
-      return encrypt.ciphertext.toString(CryptoJS.enc.Base64);
-    }
+function getKey(key) {
+    //真正的key
+    return CryptoJS.SHA1(CryptoJS.SHA1(key)).toString().substring(0, 32)
+}
 ```
 
-## 解密
+### 加密
 
 ```javascript
-    function decrypt(data,key) {
-      var realKey = getKey(key);
-      var decrypt = CryptoJS.AES.decrypt({
-        ciphertext: CryptoJS.enc.Base64.parse(data)
-      }, CryptoJS.enc.Hex.parse(realKey), {
+function encrypt(data,key) {
+    let encrypt = CryptoJS.AES.encrypt(data, CryptoJS.enc.Hex.parse(getKey(key)), {
         mode: CryptoJS.mode.ECB,
         padding: CryptoJS.pad.Pkcs7
-      });
-      return decrypt.toString(CryptoJS.enc.Utf8);
-    }
+    })
+    return encrypt.ciphertext.toString(CryptoJS.enc.Base64)
+}
+```
+
+### 解密
+
+```javascript
+function decrypt(data,key) {
+    let decrypt = CryptoJS.AES.decrypt({
+        ciphertext: CryptoJS.enc.Base64.parse(data)
+    }, CryptoJS.enc.Hex.parse(getKey(key)), {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+    })
+    return decrypt.toString(CryptoJS.enc.Utf8)
+}
 ```
 
 
